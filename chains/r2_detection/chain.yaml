@@ -1,0 +1,62 @@
+# Chain Configuration for R2: Detection Engineering
+chain:
+  name: "r2_detection_engineering"
+  description: "Detection Engineering - Transform intelligence into deployable detections"
+  stage: 2
+  depends_on: ["r1_intel_analysis"]
+  prompts:
+    - id: "r2-01"
+      file: "prompts/r2/R2-01-critic-prompt-qa-audit.md"
+      name: "Critic Prompt QA/Audit"
+      output_key: "qa_audit"
+      depends_on: ["r1_intelligence"]
+      description: "Validate R1 outputs before detection engineering"
+    - id: "r2-04"
+      file: "prompts/r2/R2-04-detection-opportunity-generator-sentinel-kql.md"
+      name: "Sentinel KQL Detection Opportunities"
+      output_key: "sentinel_kql"
+      depends_on: ["r1_intelligence", "qa_audit"]
+      siem: "microsoft-sentinel"
+      format: "kql"
+    - id: "r2-05"
+      file: "prompts/r2/R2-05-detection-rule-to-splunk-spl-converter.md"
+      name: "Splunk SPL Converter"
+      output_key: "splunk_spl"
+      depends_on: ["r1_intelligence", "qa_audit"]
+      siem: "splunk"
+      format: "spl"
+    - id: "r2-06"
+      file: "prompts/r2/R2-06-detection-validation-handoff-ttp.md"
+      name: "Detection Validation & Handoff"
+      output_key: "validation_handoff"
+      depends_on: ["sentinel_kql", "splunk_spl"]
+      description: "TTP-to-detection mapping for handoff to SOC"
+    - id: "r2-07"
+      file: "prompts/r2/R2-07-hunt-lead-extraction-prioritization.md"
+      name: "Hunt Lead Extraction & Prioritization"
+      output_key: "hunt_leads"
+      depends_on: ["r1_intelligence", "qa_audit"]
+    - id: "r2-08"
+      file: "prompts/r2/R2-08-hunt-lead-feasibility-coverage.md"
+      name: "Hunt Lead Feasibility & Coverage"
+      output_key: "hunt_coverage"
+      depends_on: ["hunt_leads"]
+    - id: "r2-09"
+      file: "prompts/r2/R2-09-threat-trend-identification.md"
+      name: "Threat Trend Identification"
+      output_key: "threat_trends"
+      depends_on: ["r1_intelligence"]
+    - id: "r2-11"
+      file: "prompts/r2/R2-11-structured-threat-assessment.md"
+      name: "Structured Threat Assessment"
+      output_key: "threat_assessment"
+      depends_on: ["r1_intelligence", "threat_trends"]
+
+  output:
+    combined: true
+    format: "markdown"
+    filename: "r2_detection_engineering.md"
+
+  validation:
+    required_outputs: ["sentinel_kql", "splunk_spl", "validation_handoff"]
+    min_confidence: "medium"

@@ -1,0 +1,23 @@
+openai:
+  api_key: "${NVIDIA_API_KEY}"
+  base_url: "https://integrate.api.nvidia.com/v1"
+  model: "nvidia/nemotron-3-ultra-550b-a55b"
+
+opencode:
+  config_path: "~/.config/opencode/opencode.json"
+
+chain:
+  default_sector: "financial-services"
+  default_region: "global"
+  default_stakeholders: "SOC, Fraud, Compliance, Risk"
+  auto_validate: true
+  max_retries: 3
+
+elk:
+  host: "https://your-elk.com"
+  api_key: "${ELK_API_KEY}"
+  import_on_complete: false
+
+soar:
+  enabled: false
+  platform: "cortex-xsoar"  # cortex-xsoar | splunk-soar | phantom

@@ -1,0 +1,49 @@
+# Chain Configuration for R4: Response & Reporting
+chain:
+  name: "r4_respond_reporting"
+  description: "Response & Reporting - Transform automated outputs into SITREPs, executive briefs, and resilience assessments"
+  stage: 4
+  depends_on: ["r3_automate_workflows"]
+  prompts:
+    - id: "r4-01"
+      file: "prompts/r4/R4-01-threat-data-triage.md"
+      name: "Threat Data Triage"
+      output_key: "triage"
+      depends_on: ["r3_sigma_rules", "r3_ioc_enrichment"]
+      disposition_based: true
+    - id: "r4-02"
+      file: "prompts/r4/R4-02-multi-feed-triage-consolidation.md"
+      name: "Multi-Feed Triage Consolidation"
+      output_key: "multi_feed_triage"
+      depends_on: ["triage", "r1_intelligence"]
+    - id: "r4-07"
+      file: "prompts/r4/R4-07-cti-incident-sitrep.md"
+      name: "CTI Incident SITREP"
+      output_key: "sitrep"
+      depends_on: ["triage", "r3_sigma_rules", "r3_ioc_enrichment", "r4_executive_brief"]
+      iterative: true
+      iteration_field: "record_iteration"
+    - id: "r4-08"
+      file: "prompts/r4/R4-08-executive-intelligence-brief.md"
+      name: "Executive Intelligence Brief"
+      output_key: "executive_brief"
+      depends_on: ["r1_intelligence", "r3_sigma_rules", "r4_triage"]
+    - id: "r4-09"
+      file: "prompts/r4/R4-09-threat-informed-tabletop-exercise.md"
+      name: "Threat-Informed Tabletop Exercise"
+      output_key: "tabletop_exercise"
+      depends_on: ["r1_intelligence", "r3_hunt_hypotheses", "r4_sitrep"]
+    - id: "r4-10"
+      file: "prompts/r4/R4-10-resilience-gap-assessment.md"
+      name: "Resilience Gap Assessment"
+      output_key: "resilience_gap"
+      depends_on: ["r1_intelligence", "r3_control_gaps", "r4_sitrep"]
+
+  output:
+    combined: true
+    format: "markdown"
+    filename: "r4_respond_reporting.md"
+
+  validation:
+    required_outputs: ["sitrep", "executive_brief", "resilience_gap"]
+    min_confidence: "high"

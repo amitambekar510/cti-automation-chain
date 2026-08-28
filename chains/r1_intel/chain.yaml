@@ -1,0 +1,65 @@
+# Chain Configuration for R1: Intelligence Analysis
+chain:
+  name: "r1_intel_analysis"
+  description: "Intelligence Analysis - Transform raw threat intel into structured analysis"
+  stage: 1
+  depends_on: []
+  prompts:
+    - id: "r1-01"
+      file: "prompts/r1/R1-01-diamond-model-intrusion-analysis.md"
+      name: "Diamond Model of Intrusion Analysis"
+      output_key: "diamond_model"
+      required: true
+    - id: "r1-05"
+      file: "prompts/r1/R1-05-map-threat-actors-to-ttps.md"
+      name: "Map Threat Actors to TTPs"
+      output_key: "actor_ttp_map"
+      depends_on: ["diamond_model"]
+    - id: "r1-12"
+      file: "prompts/r1/R1-12-threat-actor-profile.md"
+      name: "Threat Actor Profile"
+      output_key: "actor_profile"
+      depends_on: ["diamond_model", "actor_ttp_map"]
+    - id: "r1-02"
+      file: "prompts/r1/R1-02-red-team-emulation-plans.md"
+      name: "Red Team Emulation Plans"
+      output_key: "red_team_plan"
+      depends_on: ["actor_ttp_map"]
+    - id: "r1-03"
+      file: "prompts/r1/R1-03-visual-attack-flow.md"
+      name: "Visual Attack Flow"
+      output_key: "attack_flow"
+      depends_on: ["diamond_model"]
+    - id: "r1-04"
+      file: "prompts/r1/R1-04-threat-hunt-hypothesis.md"
+      name: "Threat Hunt Hypothesis"
+      output_key: "hunt_hypothesis"
+      depends_on: ["diamond_model", "actor_ttp_map"]
+    - id: "r1-06"
+      file: "prompts/r1/R1-06-vulnerability-assessment-table.md"
+      name: "Vulnerability Assessment Table"
+      output_key: "vuln_assessment"
+    - id: "r1-07"
+      file: "prompts/r1/R1-07-cve-chaining.md"
+      name: "CVE Chaining"
+      output_key: "cve_chains"
+      depends_on: ["vuln_assessment"]
+    - id: "r1-10"
+      file: "prompts/r1/R1-10-industry-threat-intelligence-report.md"
+      name: "Industry Threat Intelligence Report"
+      output_key: "industry_report"
+      depends_on: ["diamond_model", "actor_profile"]
+    - id: "r1-11"
+      file: "prompts/r1/R1-11-vulnerability-advisories.md"
+      name: "Vulnerability Advisories"
+      output_key: "vuln_advisories"
+      depends_on: ["vuln_assessment", "cve_chains"]
+
+  output:
+    combined: true
+    format: "markdown"
+    filename: "r1_intelligence_analysis.md"
+
+  validation:
+    required_outputs: ["diamond_model", "actor_profile", "actor_ttp_map"]
+    min_confidence: "medium"

@@ -1,0 +1,55 @@
+# Chain Configuration for R3: Workflow Automation
+chain:
+  name: "r3_automate_workflows"
+  description: "Workflow Automation - Transform detections into Sigma rules, hunt hypotheses, and automated workflows"
+  stage: 3
+  depends_on: ["r2_detection_engineering"]
+  prompts:
+    - id: "r3-01"
+      file: "prompts/r3/R3-01-ioc-extract-enrich-prompt.md"
+      name: "IOC Extraction & Enrichment"
+      output_key: "ioc_enrichment"
+      depends_on: ["r2_detections"]
+    - id: "r3-02"
+      file: "prompts/r3/R3-02-attack-navigator-layer-mapping.md"
+      name: "ATT&CK Navigator Layer Mapping"
+      output_key: "navigator_layer"
+      depends_on: ["r1_intelligence", "r2_detections"]
+      format: "json"
+    - id: "r3-06"
+      file: "prompts/r3/R3-06-sigma-detection-rules.md"
+      name: "Sigma Detection Rules"
+      output_key: "sigma_rules"
+      depends_on: ["r2_detections", "r2_validation_handoff"]
+      format: "yaml"
+      validator: "sigmahq"
+    - id: "r3-05"
+      file: "prompts/r3/R3-05-sigma-format-adapter-prompt.md"
+      name: "Sigma Format Adapter"
+      output_key: "sigma_adapters"
+      depends_on: ["sigma_rules"]
+      description: "Convert Sigma to KQL/SPL/YARA/Suricata"
+    - id: "r3-07"
+      file: "prompts/r3/R3-07-hunt-hypotheses-package.md"
+      name: "Hunt Hypotheses Package"
+      output_key: "hunt_hypotheses"
+      depends_on: ["r1_hunt_hypothesis", "r2_hunt_leads", "sigma_rules"]
+    - id: "r3-04"
+      file: "prompts/r3/R3-04-controls-gap-recommendations.md"
+      name: "Control Gap Recommendations"
+      output_key: "control_gaps"
+      depends_on: ["r1_intelligence", "sigma_rules"]
+    - id: "r3-08"
+      file: "prompts/r3/R3-08-stakeholder-awareness-brief.md"
+      name: "Stakeholder Awareness Brief"
+      output_key: "awareness_brief"
+      depends_on: ["r1_intelligence", "r4_executive_brief"]
+
+  output:
+    combined: true
+    format: "markdown"
+    filename: "r3_automate_workflows.md"
+
+  validation:
+    required_outputs: ["sigma_rules", "navigator_layer", "hunt_hypotheses"]
+    min_confidence: "medium"
