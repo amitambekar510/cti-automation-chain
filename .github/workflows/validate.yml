@@ -1,4 +1,4 @@
-name: Validate CTI v2 planning
+name: Validate CTI v2 offline planning
 on:
   push:
   pull_request:
