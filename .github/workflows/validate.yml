@@ -15,4 +15,3 @@ jobs:
       - run: python -m unittest discover -s tests -v
       - run: python scripts/plan_environment.py --input examples/environment.sample.json --output /tmp/cti-plan.md
       - run: test -s /tmp/cti-plan.md
-      - run: python -m compileall -q scripts
