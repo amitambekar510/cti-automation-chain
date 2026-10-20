@@ -1,0 +1,20 @@
+{
+  "siem": "Elastic / ELK (synthetic example)",
+  "intel_sources": [
+    "approved public advisories",
+    "analyst-supplied redacted report"
+  ],
+  "goal": "detection candidates and executive summary",
+  "sector": "financial services",
+  "region": "India",
+  "telemetry": [
+    "Windows security events",
+    "firewall logs"
+  ],
+  "ai_runtime": "manual AI review; no API connection",
+  "approval": "human review required",
+  "frameworks": [
+    "ISO/IEC 27001",
+    "NIST CSF 2.0"
+  ]
+}

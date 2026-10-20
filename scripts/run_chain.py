@@ -70,7 +70,7 @@ class CTIAutomationChain:
         """Execute prompt via OpenCode CLI"""
         try:
             result = subprocess.run(
-                ["opencode", prompt_text],
+                ["opencode", "run", prompt_text],
                 capture_output=True,
                 text=True,
                 timeout=300,
@@ -162,6 +162,10 @@ class CTIAutomationChain:
             console.rule(f"[bold]Stage: {stage}[/bold]")
             outputs = self.run_stage(stage, current_input, variables)
             all_outputs[stage] = outputs
+            if not outputs:
+                raise RuntimeError(f"Stage {stage} produced no output; stopping to prevent empty downstream analysis")
+            for key, content in outputs.items():
+                self._save_output(stage, key, content, variables)
             
             # Combine outputs for next stage
             combined = "\n\n---\n\n".join(outputs.values())
@@ -205,10 +209,21 @@ def main():
     chain = CTIAutomationChain(args.config)
     
     # Run chain
+    stage_map = {"r1": "r1_intel", "r2": "r2_detection", "r3": "r3_automate", "r4": "r4_respond"}
+    chain.output_dir = Path(args.output)
+    chain.output_dir.mkdir(parents=True, exist_ok=True)
     if args.stage_only:
-        outputs = chain.run_stage(args.stage_only, input_path.read_text(), variables)
+        name = stage_map.get(args.stage_only)
+        if not name:
+            parser.error("--stage-only must be one of r1, r2, r3, r4")
+        stage_results = chain.run_stage(name, input_data, variables)
+        if not stage_results:
+            raise RuntimeError("Stage produced no output")
+        for key, content in stage_results.items():
+            chain._save_output(name, key, content, variables)
+        outputs = {name: stage_results}
     else:
-        outputs = chain.run_chain(args.chain, input_data, variables)
+        outputs = chain.run_chain("full" if args.chain == "full" else stage_map[args.chain], input_data, variables)
     
     # Print summary
     console.print("\n[bold green]Chain execution complete![/bold green]")
