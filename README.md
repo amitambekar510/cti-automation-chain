@@ -1,4 +1,57 @@
-# CTI Automation Chain
+<div align="center">
+
+<img src="assets/cti-v2-hero.svg" alt="CTI Automation Chain 2.0" width="100%">
+
+# CTI Automation Chain 2.0
+
+**AI-guided infrastructure onboarding · Threat intelligence · Detection engineering · Evidence-based response**
+
+<img src="assets/cti-v2-workflow.gif" alt="Four-stage CTI pipeline animated walkthrough using synthetic examples" width="100%">
+
+*Illustrative animation — not a live SIEM deployment.*
+
+<img src="assets/cti-v2-architecture.svg" alt="R1 intelligence R2 detection R3 draft automation R4 response architecture" width="100%">
+
+</div>
+
+## 🤖 AI-ready: start with your actual SOC infrastructure
+
+Give a compatible AI assistant this prompt:
+
+```text
+Read AGENTS.md and AI_INSTRUCTIONS.md from this GitHub repository.
+Ask me one question at a time, starting with which SIEM and security
+platforms I use. Learn my threat intelligence sources, telemetry,
+SOC objectives, sector, model access, approvals and audit needs.
+Then produce a tailored R1-to-R4 workflow, gaps, safe validation plan,
+and audit evidence checklist. Do not request credentials.
+```
+
+Pasting a GitHub URL alone **does not guarantee** every AI platform reads instructions. This is prompt-driven onboarding, not a hosted chatbot.
+
+### Offline environment plan (no API keys or external calls)
+
+```bash
+python scripts/plan_environment.py --input examples/environment.sample.json --output /tmp/cti-plan.md
+```
+
+The example uses **synthetic data**. Real CTI execution requires a configured AI provider and installed OpenCode CLI. Generated detection candidates must be validated against your actual SIEM schemas before use.
+
+### Scope and regulatory alignment
+
+See the [12-reference regulatory/framework applicability matrix](docs/compliance-applicability.md). It does not certify compliance. ISO/IEC 27090 is listed as an unverified identifier.
+
+### Project status and practical caveats
+
+- The original R1–R4 prompts and Python runner are preserved; **OpenCode and model-backed execution are not validated by the offline tests**.
+- `scripts/run_chain.py` now maps short stage aliases, saves outputs in the selected directory and fails on empty stages.
+- This repository does not automatically deploy detections or block indicators.
+- Legacy README sections below contain historical example commands; verify them against actual files before using them.
+
+---
+
+## Original project reference and prompt catalog
+
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue)](https://python.org)
@@ -35,7 +88,7 @@
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Legacy quick-start reference
 
 ```bash
 # 1. Clone & setup
@@ -54,10 +107,10 @@ cp config/config.yaml.example config/config.yaml
 python3 scripts/run_chain.py --chain full --input intel-report.md --output ./output/
 
 # 4. Or run individual stages
-python3 scripts/run_chain.py --stage r1 --input intel-report.md
-python3 scripts/run_chain.py --stage r2 --input ./output/r1_diamond.md
-python3 scripts/run_chain.py --stage r3 --input ./output/r2_detections.md
-python3 scripts/run_chain.py --stage r4 --input ./output/r3_sigma.md
+python3 scripts/run_chain.py --chain r1 --input intel-report.md
+python3 scripts/run_chain.py --chain r2 --input ./output/r1_diamond.md
+python3 scripts/run_chain.py --chain r3 --input ./output/r2_detections.md
+python3 scripts/run_chain.py --chain r4 --input ./output/r3_sigma.md
 ```
 
 ---
